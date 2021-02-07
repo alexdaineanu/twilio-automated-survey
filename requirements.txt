@@ -1,0 +1,13 @@
+django==3.1.6
+celery==5.0.5
+requests==2.25.1
+watchdog==1.0.2
+pyyaml==5.4.1
+argh==0.26.2
+redis==3.5.3
+djangorestframework==3.12.2
+django-extensions==3.1.0
+django-phonenumber-field==5.0.0
+phonenumbers==8.12.17
+django-twilio==0.13.1.post0
+twilio==6.51.1

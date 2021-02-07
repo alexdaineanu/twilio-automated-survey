@@ -1,0 +1,20 @@
+version: '3.0'
+services:
+  web:
+    container_name: twilio_survey
+    build: .
+    restart: always
+    command: bash /survey/entrypoint.sh
+    stdin_open: true
+    volumes:
+      - ./survey:/survey
+    ports:
+      - "8000:80"
+    links:
+      - redis
+
+  redis:
+      container_name: twilio_redis
+      image: redis
+      ports:
+        - "6379:6379"
