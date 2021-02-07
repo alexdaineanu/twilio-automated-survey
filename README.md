@@ -13,7 +13,7 @@ Make sure `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN` and `TWILIO_PHONE_NUMBER` ar
 
 To start the project, run the command `docker-compose up -d`.
 
-The API subscription route is at `twilio-survey/submit-contact/'.
+The API subscription route is at `twilio-survey/submit-contact/`.
 
 Example call:
 
