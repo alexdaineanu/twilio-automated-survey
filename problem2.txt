@@ -1,0 +1,46 @@
+QUESTION
+----------------------------------------------------------
+If you received a request to build a workflow tool, how would you approach it? A workflow is an arbitrary state machine. Each node can be a:
+
+1. Compute node (basically a function that transforms an input, this could be an API call as well.)
+2. A delay node. (halts the execution for up to X months (or sufficiently long so you wouldn't be able to solve this with 1 process :) ))
+3. A decision node (makes a decision based on the state of the universe).
+----------------------------------------------------------
+
+
+ANSWER
+----------------------------------------------------------
+Basically, the problem statement sounds like an in-house custom scheduler. Starting from this idea, the system might be
+created in the following way. The base entity of this system would be a class called Task, which would have at
+least these parameters:
+- id - the id of the task, used to identify the task uniquely
+- computation_method - the method which will be called when the 'waiting' is over and if the condition is fulfilled (the parameters will be provided via computation_kwargs)
+- computation_kwargs - a json field which contains miscellaneous parameters used when calling the 'computation_method'
+- condition_method - the method which will decide if the computation_method is called (the parameters will be provided via condition_kwargs), or the task needs more delay.
+    If null, the computation will start directly at the scheduled time.
+- condition_kwargs - a json field which contains miscellaneous parameters used whe calling the 'condition_method'
+- parent_id - the task id of the node which created this task
+- status - 'created', 'in_progress', 'finished', 'failed'
+    - 'created' - when the task was created, but the scheduler has to wait until it can trigger the execution
+    - 'in_progress' - execution of 'computation_method' has been triggered and it is in progress
+    - 'finished' - the tasked has been finished successfully
+    - 'failed' - the task raised errors
+- scheduled_for - the time intended for processing
+- time_created - the creation time
+- time_started - the start time
+- time_finished - the time when the task was finished
+
+The tasks are forming a queue in the database (so the system has the capacity to restart and not lose track of tasks).
+There are many workers which take tasks from the queue when the 'time is right' (scheduled_for field >= now). The
+workers can work in a manner similar to a crontab system, or they can poll the database once every minute to see if
+there are tasks that need execution. The advantages of using a centralized database in this system are that the workers
+will be synchronized by the database via isolation layers (a worker will take a task only if 'scheduled_for' >= now,
+status == 'created', time_started == null). Another advantage of this system architecture is scalability (we can
+define as many workers as we want - like EC2 instances - the only limit being the centralized database).
+
+NOTE: the 'scheduled_for' time may be different from 'time_started' in conditions like system overloading, and the
+tasks execution may be delayed.
+
+Of course, the system can be perfected. Everything above is just an architecture idea (there could be many
+implementations of a system like this) and it should be treated carefully.
+----------------------------------------------------------
